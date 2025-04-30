@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CrosshairAI - Code Assistant</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 1rem;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    h2 {
+      color: #2d3436;
+      margin-top: 2rem;
+    }
+
+    pre {
+      background-color: #f1f1f1;
+      padding: 1rem;
+      border-radius: 5px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+
+    #resultSection {
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ CrosshairAI Code Assistant</h1>
+
+  <div class="container">
+    <textarea id="codeInput" placeholder="Paste your game code here..." rows="10"></textarea>
+    <input type="text" id="promptInput" placeholder="e.g. optimize this rendering loop">
+    <button onclick="submitPrompt()">🚀 Submit</button>
+
+    <div id="resultSection" style="display:none;">
+      <h2>🔁 Suggested Code:</h2>
+      <pre id="suggestedCode"></pre>
+
+      <h2>📘 Explanation:</h2>
+      <p id="explanation"></p>
+
+      <button onclick="integrateCode()">💡 Integrate Code</button>
+
+      <h2>✅ Final Output:</h2>
+      <pre id="finalOutput"></pre>
+    </div>
+  </div>
+
+  <script>
+    async function submitPrompt() {
+      const code = document.getElementById('codeInput').value;
+      const prompt = document.getElementById('promptInput').value;
+
+      const response = await fetch('/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, prompt })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        document.getElementById('resultSection').style.display = 'block';
+        document.getElementById('suggestedCode').textContent = data.suggested_code || 'No suggestions found.';
+        document.getElementById('explanation').textContent = data.explanation || 'No explanation available.';
+        window.originalCode = code;
+        window.suggestedCode = data.suggested_code;
+      } else {
+        alert(data.error || 'Something went wrong.');
+      }
+    }
+
+    function integrateCode() {
+      const finalOutput = window.originalCode.replace(window.originalCode.trim(), window.suggestedCode.trim());
+      document.getElementById('finalOutput').textContent = finalOutput;
+    }
+  </script>
+</body>
+</html>
+
